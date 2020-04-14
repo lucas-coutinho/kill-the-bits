@@ -210,7 +210,7 @@ def resnet18_like(pretrained = False, **kwargs):
     )
     
     if pretrained:
-        model.load_state_dict(model_urls['resnet18_like'])
+        model.load_state_dict(torch.load(model_urls['resnet18_like']))
 
     return model
     
