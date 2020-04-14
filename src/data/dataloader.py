@@ -10,7 +10,32 @@ import torch
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 
+def load_any_data(data_path='', batch_size=128, nb_workers=64, transforms_dict = {'train': None, 'val': None}):
+    """
+    Loads any data from any dataset.
 
+    Args:
+        - data_path: path to dataset
+        - batch_size: train and test batch size
+        - nb_workers: number of workers for dataloader
+        - transforms_dict: transform dictionary to apply on data
+    """
+    train_data_path = os.path.join(data_path, 'train')
+    test_data_path = os.path.join(data_path, 'val')
+    
+    train_set = datasets.ImageFolder(
+            root=train_data_path, transform=transforms_dict['train'])
+    train_loader = torch.utils.data.DataLoader(
+            train_set, batch_size=batch_size, shuffle=True, num_workers=nb_workers, pin_memory=True, drop_last=True)
+
+    test_set = datasets.ImageFolder(
+            root=test_data_path, transform=transforms_dict['val'])
+    test_loader = torch.utils.data.DataLoader(
+            test_set, batch_size=batch_size, shuffle=False, num_workers=nb_workers, pin_memory=True)
+
+    return train_loader, test_loader
+    
+        
 def load_data(data_path='', batch_size=128, nb_workers=64):
     """
     Loads data from ImageNet dataset.

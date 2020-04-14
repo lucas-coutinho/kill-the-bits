@@ -5,4 +5,4 @@
 # LICENSE file in the root directory of this source tree.
 #
 
-from .dataloader import load_data
+from .dataloader import *

@@ -16,11 +16,12 @@ import numpy as np
 
 import torch
 import torch.nn as nn
+from torchvision.datasets import transforms
 import torch.optim
 import torch.backends.cudnn as cudnn
 
 import models
-from data import load_data
+from data import load_data, load_any_data
 from optim import CentroidSGD
 from quantization import PQ
 from utils.training import finetune_centroids, evaluate
@@ -113,7 +114,20 @@ def main():
     layers = [layer for layer in watcher.layers[1:] if args.block in layer]
 
     # data loading code
-    train_loader, test_loader = load_data(data_path=args.data_path, batch_size=args.batch_size, nb_workers=args.n_workers)
+    train_loader, test_loader = load_any_data(data_path=args.data_path, batch_size=args.batch_size, nb_workers=args.n_workers,
+       transforms_dict = { 'train': transforms.Compose([
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomVerticalFlip(),
+                transforms.Resize(224),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ]),
+            'val': transforms.Compose([transforms.Resize(224),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ])
+        }
+    )
 
     # parameters for the centroids optimizer
     opt_centroids_params_all = []
