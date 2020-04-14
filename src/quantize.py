@@ -33,7 +33,7 @@ from utils.utils import centroids_from_weights, weight_from_centroids
 
 parser = argparse.ArgumentParser(description='And the bit goes down: Revisiting the quantization of neural networks')
 
-parser.add_argument('--model', default='resnet18', choices=['resnet18', 'resnet50'],
+parser.add_argument('--model', default='resnet18', choices=['resnet18', 'resnet50', 'resnet18_like'],
                     help='Pretrained model to quantize')
 parser.add_argument('--block', default='all', type=str,
                     help='Block to quantize (if all, quantizes whole network)')
