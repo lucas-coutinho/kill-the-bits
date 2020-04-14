@@ -16,7 +16,7 @@ import numpy as np
 
 import torch
 import torch.nn as nn
-from torchvision.datasets import transforms
+import torchvision.transforms as transforms
 import torch.optim
 import torch.backends.cudnn as cudnn
 
