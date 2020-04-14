@@ -10,7 +10,7 @@ import torch.utils.model_zoo as model_zoo
 
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
-           'resnet152', 'PestNet-resnet18-like']
+           'resnet152', 'resnet18_like']
 
 
 model_urls = {
@@ -19,7 +19,7 @@ model_urls = {
     'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
     'resnet101': 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth',
     'resnet152': 'https://download.pytorch.org/models/resnet152-b121ed2d.pth',
-    'PestNet-resnet18-like': './models/resnet18_0.0001_2_plateu_(0.2, 0.2, 0.6).pt'
+    'resnet18_like': './models/resnet18_0.0001_2_plateu_(0.2, 0.2, 0.6).pt'
 }
 
 
@@ -193,10 +193,9 @@ def resnet18(pretrained=False, **kwargs):
         model.load_state_dict(model_zoo.load_url(model_urls['resnet18']))
     return model
 
-def resnet18_like(pretrained = False):
+def resnet18_like(pretrained = False, **kwargs):
     model = ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
-    if pretrained:
-        model.load_state_dict(model_urls['PestNet-resnet18-like'])
+    
     
     num_ftrs = model.fc.in_features
     model.fc = nn.Sequential(
@@ -209,10 +208,9 @@ def resnet18_like(pretrained = False):
         nn.Linear(1024,3),
         nn.LogSoftmax(dim = 1)
     )
-
-    if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['PestNet-resnet18-like']))
     
+    if pretrained:
+        model.load_state_dict(model_urls['resnet18_like'])
 
     return model
     
