@@ -45,7 +45,9 @@ class PQ(EM):
         # sanity check
         assert self.M.size(0) % n_blocks == 0, "n_blocks must be a multiple of in_features"
         # initialize centroids
+        print('before sample weights')
         M_reshaped = self.sample_weights()
+        print('after sample weights')
         self.initialize_centroids(M_reshaped)
 
     def _reshape(self, in_activations, M):
