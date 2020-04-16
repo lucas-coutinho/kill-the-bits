@@ -244,13 +244,16 @@ def main():
                 print('Quantizing layer')
 
         # quantize layer
+        print('befor encode')
         quantizer.encode()
 
         # assign quantized weight matrix
         M_hat = quantizer.decode()
+        print('after decode')
         attrgetter(layer + '.weight')(student).data = M_hat
 
         # top1
+        print('evaluation')
         top_1 = evaluate(test_loader, student, criterion).item()
 
         # book-keeping
