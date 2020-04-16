@@ -41,7 +41,9 @@ class PQ(EM):
         self.groups = groups
         # reshape activations and weight in the case of convolutions
         self.conv = len(M.size()) == 4
+        print('before reshape')
         self._reshape(in_activations, M)
+        print('after reshape')
         # sanity check
         assert self.M.size(0) % n_blocks == 0, "n_blocks must be a multiple of in_features"
         # initialize centroids
