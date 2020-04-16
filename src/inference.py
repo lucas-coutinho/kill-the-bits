@@ -12,7 +12,7 @@ import torch
 import torch.nn as nn
 
 import models as resnet_models
-import torchvision.models.detection as detection_models
+#import torchvision.models.detection as detection_models
 import torchvision.transforms as transforms
 from data import load_data, load_any_data
 from utils.training import evaluate
