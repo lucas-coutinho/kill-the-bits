@@ -108,7 +108,7 @@ def main():
     # attrgetter(layer + '.bias')(model).data = state_dict_layer['bias']
 
     # evaluate the model
-    top_1 = evaluate(test_loader, model, criterion, device=device).item()
+    top_1 = evaluate(test_loader, model, criterion, device=device, verbose= True).item()
     print('Top-1 accuracy of quantized model: {:.2f}'.format(top_1))
 
 
