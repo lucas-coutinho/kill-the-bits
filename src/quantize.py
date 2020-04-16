@@ -208,11 +208,12 @@ def main():
                bits_per_weight, size_index_layer + size_centroids_layer))
 
         # quantizer
+        print('before instatiating quantizer')
         quantizer = PQ(in_activations_current, M, n_activations=args.n_activations,
                        n_samples=n_samples, eps=args.eps, n_centroids=n_centroids,
                        n_iter=args.n_iter, n_blocks=n_blocks, k=k,
                        stride=stride, padding=padding, groups=groups)
-
+        print('after quantizer')
         if len(args.restart) > 0:
             # do not quantize already quantized layers
             try:
