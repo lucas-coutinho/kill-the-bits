@@ -84,8 +84,8 @@ def main():
     for layer in compressed_layers:
         # recover centroids and assignments
         state_dict_layer = state_dict_compressed[layer]
-        centroids = state_dict_layer['centroids'].float().to(device)
-        assignments = state_dict_layer['assignments'].long().to(device)
+        centroids = state_dict_layer['centroids'].to(device)
+        assignments = state_dict_layer['assignments'].to(device)
         n_blocks = state_dict_layer['n_blocks']
         is_conv = state_dict_layer['is_conv']
         k = state_dict_layer['k']
