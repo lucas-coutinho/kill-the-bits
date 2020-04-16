@@ -56,14 +56,16 @@ class PQ(EM):
         """
         Rehshapes if conv or fully-connected.
         """
-
+        print('before weight')
         self.M = reshape_weight(M)
+        print('after weight')
+        print('before activation')
         self.in_activations = reshape_activations(in_activations,
                                                   k=self.k,
                                                   stride=self.stride,
                                                   padding=self.padding,
                                                   groups=self.groups)
-
+        print('after activation')
     def unroll_activations(self, in_activations):
         """
         Unroll activations.
