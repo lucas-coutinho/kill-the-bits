@@ -326,7 +326,7 @@ def main():
     for epoch in range(args.finetune_whole_epochs):
         student.train()
         finetune_centroids(train_loader, student, teacher, criterion, optimizer_centroids_all, n_iter=n_iter)
-        top_1 = evaluate(test_loader, student, criterion)
+        top_1 = evaluate(test_loader, student, criterion, verbose= True)
         scheduler.step()
         print('Epoch: {}, Top1: {:.2f}'.format(epoch, top_1))
 
