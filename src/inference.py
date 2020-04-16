@@ -13,7 +13,8 @@ import torch.nn as nn
 
 import models as resnet_models
 import torchvision.models.detection as detection_models
-from data import load_data
+import torchvision.transforms as transforms
+from data import load_data, load_any_data
 from utils.training import evaluate
 from utils.watcher import ActivationWatcher as ActivationWatcherResNet
 from utils.utils import weight_from_centroids
@@ -46,7 +47,20 @@ def main():
     model = 'resnet50' if args.model == 'resnet50_semisup' else args.model
     model = resnet_models.__dict__[model](pretrained=True).to(device)
     criterion = nn.CrossEntropyLoss()
-    _, test_loader = load_data(data_path=args.data_path, batch_size=args.batch_size, nb_workers=args.n_workers)
+    _, test_loader =  load_any_data(data_path=args.data_path, batch_size=args.batch_size, nb_workers=args.n_workers,
+       transforms_dict = { 'train': transforms.Compose([
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomVerticalFlip(),
+                transforms.Resize(224),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ]),
+            'val': transforms.Compose([transforms.Resize(224),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ])
+        }
+    )
     watcher = ActivationWatcherResNet(model)
 
     # conv1 layer (non-compressed)
@@ -56,7 +70,7 @@ def main():
     attrgetter(layer)(model).float()
 
     # compressed layers
-    compressed_layers = [layers for layer in watcher.layers[1:] if args.block in layer]
+    compressed_layers = [layer for layer in watcher.layers[1:] if args.block in layer]
 
     # 2 more layers non-compressed for semi-supervised ResNet50
     if args.model == 'resnet50_semisup':
