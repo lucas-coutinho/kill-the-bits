@@ -20,8 +20,10 @@ from utils.utils import weight_from_centroids
 
 
 parser = argparse.ArgumentParser(description='Inference for quantized networks')
-parser.add_argument('--model', default='resnet18', choices=['resnet18', 'resnet50', 'resnet50_semisup'],
+parser.add_argument('--model', default='resnet18', choices=['resnet18', 'resnet50','resnet18_like', 'resnet50_semisup'],
                     help='Model to use for inference')
+parser.add_argument('--block', default='all', type=str,
+                    help='Block to quantize (if all, quantizes whole network)')
 parser.add_argument('--state-dict-compressed', default='', type=str,
                     help='Path to the compressed state dict of the model')
 parser.add_argument('--device', default='cuda', choices=['cpu', 'cuda'],
@@ -42,7 +44,7 @@ def main():
 
     # instantiating model
     model = 'resnet50' if args.model == 'resnet50_semisup' else args.model
-    model = resnet_models.__dict__[model](pretrained=False).to(device)
+    model = resnet_models.__dict__[model](pretrained=True).to(device)
     criterion = nn.CrossEntropyLoss()
     _, test_loader = load_data(data_path=args.data_path, batch_size=args.batch_size, nb_workers=args.n_workers)
     watcher = ActivationWatcherResNet(model)
@@ -54,7 +56,7 @@ def main():
     attrgetter(layer)(model).float()
 
     # compressed layers
-    compressed_layers = watcher.layers[1:]
+    compressed_layers = [layers for layer in watcher.layers[1:] if args.block in layer]
 
     # 2 more layers non-compressed for semi-supervised ResNet50
     if args.model == 'resnet50_semisup':
@@ -87,9 +89,9 @@ def main():
         attrgetter(layer)(model).bias.data = state_dict_layer['bias'].float().to(device)
 
     # classifier bias
-    layer = 'fc'
-    state_dict_layer = to_device(state_dict_compressed['fc_bias'], device)
-    attrgetter(layer + '.bias')(model).data = state_dict_layer['bias']
+    # layer = 'fc'
+    # state_dict_layer = to_device(state_dict_compressed['fc_bias'], device)
+    # attrgetter(layer + '.bias')(model).data = state_dict_layer['bias']
 
     # evaluate the model
     top_1 = evaluate(test_loader, model, criterion, device=device).item()

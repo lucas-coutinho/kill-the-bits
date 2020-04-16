@@ -337,7 +337,8 @@ def main():
     state_dict_compressed['conv1'] = student.conv1.state_dict()
 
     # save biases of the classifier
-    state_dict_compressed['fc_bias'] = {'bias': student.fc.bias}
+    
+    #state_dict_compressed['fc_bias'] = {'bias': student.fc.bias}
 
     # save batch norms
     bn_layers = watcher._get_bn_layers()
