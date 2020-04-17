@@ -336,8 +336,13 @@ def main():
     # save conv1 (not quantized)
     state_dict_compressed['conv1'] = student.conv1.state_dict()
 
-    # save biases of the classifier
+    # save biases of the 
     
+    if args.model == 'resnet18_like':
+        state_dict_compressed['fc']  = student.fc.state_dict
+        uncompressed_layers = [layer for layer in watcher.layers[1:] if args.block not in layer] 
+        for layer in uncompressed_layers:
+            state_dict_compressed[layer]  = attrgetter(layer+ '.weight')(student).data
     #state_dict_compressed['fc_bias'] = {'bias': student.fc.bias}
 
     # save batch norms
