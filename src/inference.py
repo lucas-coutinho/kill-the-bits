@@ -42,7 +42,7 @@ def main():
     args = parser.parse_args()
     device = args.device
     state_dict_compressed = torch.load(args.state_dict_compressed)
-
+    args.block = '' if args.block == 'all' else args.block
     # instantiating model
     model = 'resnet50' if args.model == 'resnet50_semisup' else args.model
     model = resnet_models.__dict__[model](pretrained=True).to(device)
