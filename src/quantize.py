@@ -338,12 +338,9 @@ def main():
 
     # save biases of the 
     
-    if args.model == 'resnet18_like':
-        state_dict_compressed['fc']  = student.fc.state_dict
-        uncompressed_layers = [layer for layer in watcher.layers[1:] if args.block not in layer] 
-        for layer in uncompressed_layers:
-            state_dict_compressed[layer]  = attrgetter(layer+ '.weight')(student).data
-    #state_dict_compressed['fc_bias'] = {'bias': student.fc.bias}
+    state_dict_compressed['fc_bias'] = {'bias_1': student.fc[0].bias,
+                                        'bias_2': student.fc[3].bias,
+                                        'bias_3': student.fc[6].bias}
 
     # save batch norms
     bn_layers = watcher._get_bn_layers()
