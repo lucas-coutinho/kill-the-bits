@@ -64,11 +64,11 @@ def main():
     )
     watcher = ActivationWatcherResNet(model)
 
-    # conv1 layer (non-compressed)
-    # layer = 'conv1'
-    # state_dict_layer = to_device(state_dict_compressed[layer], device)
-    # attrgetter(layer)(model).load_state_dict(state_dict_layer)
-    # attrgetter(layer)(model).float()
+    conv1 layer (non-compressed)
+    layer = 'conv1'
+    state_dict_layer = to_device(state_dict_compressed[layer], device)
+    attrgetter(layer)(model).load_state_dict(state_dict_layer)
+    attrgetter(layer)(model).float()
 
     # compressed layers
     compressed_layers = [layer for layer in watcher.layers[1:] if args.block in layer]
@@ -85,8 +85,8 @@ def main():
     for layer in compressed_layers:
         # recover centroids and assignments
         state_dict_layer = state_dict_compressed[layer]
-        centroids = state_dict_layer['centroids'].float().to(device)
-        assignments = state_dict_layer['assignments'].long().to(device)
+        centroids = state_dict_layer['centroids'].half().to(device)
+        assignments = state_dict_layer['assignments'].byte().to(device)
         n_blocks = state_dict_layer['n_blocks']
         is_conv = state_dict_layer['is_conv']
         k = state_dict_layer['k']
