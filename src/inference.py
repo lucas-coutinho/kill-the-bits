@@ -65,10 +65,10 @@ def main():
     watcher = ActivationWatcherResNet(model)
 
     # conv1 layer (non-compressed)
-    layer = 'conv1'
-    state_dict_layer = to_device(state_dict_compressed[layer], device)
-    attrgetter(layer)(model).load_state_dict(state_dict_layer)
-    attrgetter(layer)(model).float()
+    # layer = 'conv1'
+    # state_dict_layer = to_device(state_dict_compressed[layer], device)
+    # attrgetter(layer)(model).load_state_dict(state_dict_layer)
+    # attrgetter(layer)(model).float()
 
     # compressed layers
     compressed_layers = [layer for layer in watcher.layers[1:] if args.block in layer]
