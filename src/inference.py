@@ -46,6 +46,7 @@ def main():
     # instantiating model
     model = 'resnet50' if args.model == 'resnet50_semisup' else args.model
     model = resnet_models.__dict__[model](pretrained=True).to(device)
+    model.eval()
     criterion = nn.CrossEntropyLoss()
     _, test_loader =  load_any_data(data_path=args.data_path, batch_size=args.batch_size, nb_workers=args.n_workers,
        transforms_dict = { 'train': transforms.Compose([
