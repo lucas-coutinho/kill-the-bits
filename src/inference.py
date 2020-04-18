@@ -10,6 +10,7 @@ from operator import attrgetter
 
 import torch
 import torch.nn as nn
+import Augmentor
 
 import models as resnet_models
 #import torchvision.models.detection as detection_models
@@ -48,10 +49,16 @@ def main():
     model = resnet_models.__dict__[model](pretrained=True).to(device)
     model.eval()
     criterion = nn.CrossEntropyLoss()
+
+    transform_raner = Augmentor.Pipeline()
+    transform_raner.random_erasing(probability = 0.5,rectangle_area = 0.15)
+    transform_raner = transform_raner.torch_transform()
     _, test_loader =  load_any_data(data_path=args.data_path, batch_size=args.batch_size, nb_workers=args.n_workers,
        transforms_dict = { 'train': transforms.Compose([
+                transform_raner,
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomVerticalFlip(),
+                transforms.RandomRotation(180, resample=False, expand=False),
                 transforms.Resize(224),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -107,7 +114,7 @@ def main():
     # layer = 'fc'
     # state_dict_layer = to_device(state_dict_compressed['fc_bias'], device)
     # attrgetter(layer + '.bias')(model).data = state_dict_layer['bias']
-    model = model.to(device)
+    
     # evaluate the model
     top_1 = evaluate(test_loader, model, criterion, device=device, verbose= True).item()
     print('Top-1 accuracy of quantized model: {:.2f}'.format(top_1))
