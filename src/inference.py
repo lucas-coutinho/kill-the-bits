@@ -45,8 +45,8 @@ def main():
     args.block = '' if args.block == 'all' else args.block
     # instantiating model
     model = 'resnet50' if args.model == 'resnet50_semisup' else args.model
-    model = resnet_models.__dict__[model](pretrained=True).to(device)
-    model.eval()
+    model = resnet_models.__dict__[model](pretrained=False).to(device)
+    
     criterion = nn.CrossEntropyLoss()
     _, test_loader =  load_any_data(data_path=args.data_path, batch_size=args.batch_size, nb_workers=args.n_workers,
        transforms_dict = { 'train': transforms.Compose([
@@ -104,10 +104,12 @@ def main():
         attrgetter(layer)(model).bias.data = state_dict_layer['bias'].float().to(device)
 
     # classifier bias
-    # layer = 'fc'
-    # state_dict_layer = to_device(state_dict_compressed['fc_bias'], device)
-    # attrgetter(layer + '.bias')(model).data = state_dict_layer['bias']
-    model = model.to(device)
+    layers = ['fc.0', 'fc.3', 'fc.6']
+    for i,layer in enumerate(layers):
+        state_dict_layer = to_device(state_dict_compressed['fc_bias'], device)
+        attrgetter(layer + '.bias')(model).data = state_dict_layer['bias_'+ str(i+1)]
+
+    # model = model.to(device)
     # evaluate the model
     top_1 = evaluate(test_loader, model, criterion, device=device, verbose= True).item()
     print('Top-1 accuracy of quantized model: {:.2f}'.format(top_1))
