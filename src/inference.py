@@ -10,6 +10,7 @@ from operator import attrgetter
 
 import torch
 import torch.nn as nn
+import Augmentor
 
 import models as resnet_models
 #import torchvision.models.detection as detection_models
@@ -46,12 +47,18 @@ def main():
     # instantiating model
     model = 'resnet50' if args.model == 'resnet50_semisup' else args.model
     model = resnet_models.__dict__[model](pretrained=False).to(device)
-    
+    model.load_state_dict(torch.load('./running_batchnorm.pth'))
     criterion = nn.CrossEntropyLoss()
+
+    transform_raner = Augmentor.Pipeline()
+    transform_raner.random_erasing(probability = 0.5,rectangle_area = 0.15)
+    transform_raner = transform_raner.torch_transform()
     _, test_loader =  load_any_data(data_path=args.data_path, batch_size=args.batch_size, nb_workers=args.n_workers,
        transforms_dict = { 'train': transforms.Compose([
+                transform_raner,
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomVerticalFlip(),
+                transforms.RandomRotation(180, resample=False, expand=False),
                 transforms.Resize(224),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -97,19 +104,21 @@ def main():
 
     # batch norms
     bn_layers = watcher._get_bn_layers()
-
+    print(bn_layers)
     for layer in bn_layers:
         state_dict_layer = to_device(state_dict_compressed[layer], device)
         attrgetter(layer)(model).weight.data = state_dict_layer['weight'].float().to(device)
         attrgetter(layer)(model).bias.data = state_dict_layer['bias'].float().to(device)
 
     # classifier bias
+
     layers = ['fc.0', 'fc.3', 'fc.6']
     for i,layer in enumerate(layers):
         state_dict_layer = to_device(state_dict_compressed['fc_bias'], device)
         attrgetter(layer + '.bias')(model).data = state_dict_layer['bias_'+ str(i+1)]
 
     # model = model.to(device)
+
     # evaluate the model
     top_1 = evaluate(test_loader, model, criterion, device=device, verbose= True).item()
     print('Top-1 accuracy of quantized model: {:.2f}'.format(top_1))

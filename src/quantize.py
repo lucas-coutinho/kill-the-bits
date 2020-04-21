@@ -19,6 +19,7 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 import torch.optim
 import torch.backends.cudnn as cudnn
+import Augmentor
 
 import models
 from data import load_data, load_any_data
@@ -112,12 +113,17 @@ def main():
     # layers to quantize (we do not quantize the first 7x7 convolution layer)
     watcher = ActivationWatcher(student)
     layers = [layer for layer in watcher.layers[1:] if args.block in layer]
-
+    print(layers)
     # data loading code
-    train_loader, test_loader = load_any_data(data_path=args.data_path, batch_size=args.batch_size, nb_workers=args.n_workers,
+    transform_raner = Augmentor.Pipeline()
+    transform_raner.random_erasing(probability = 0.5,rectangle_area = 0.15)
+    transform_raner = transform_raner.torch_transform()
+    train_loader, test_loader =  load_any_data(data_path=args.data_path, batch_size=args.batch_size, nb_workers=args.n_workers,
        transforms_dict = { 'train': transforms.Compose([
+                transform_raner,
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomVerticalFlip(),
+                transforms.RandomRotation(180, resample=False, expand=False),
                 transforms.Resize(224),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -398,7 +404,7 @@ def main():
 
     # save model
     torch.save(state_dict_compressed, os.path.join(args.save, 'state_dict_compressed.pth'))
-
+    torch.save(student.state_dict(), './running_batchnorm.pth')
     # book-keeping
     print('Finetuning whole network time: {:.0f}min, Top1 after finetuning centroids: {:.2f}\n'.format((time.time() - t) / 60, top_1))
 

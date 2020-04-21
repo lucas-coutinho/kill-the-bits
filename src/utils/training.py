@@ -102,7 +102,7 @@ def evaluate(test_loader, model, criterion, n_iter=-1, verbose=False, device='cu
             loss = criterion(output, target)
 
             # measure accuracy and record loss
-            acc1, acc5 = accuracy(output, target, topk=(1, 2))
+            acc1, acc5 = accuracy(output, target, topk=(1, 3))
             losses.update(loss.item(), input.size(0))
             top1.update(acc1[0], input.size(0))
             top5.update(acc5[0], input.size(0))
@@ -177,7 +177,8 @@ def accuracy(output, target, topk=(1,)):
         _, pred = output.topk(maxk, 1, True, True)
         pred = pred.t()
         correct = pred.eq(target.view(1, -1).expand_as(pred))
-
+	
+        print(batch_size)
         res = []
         for k in topk:
             correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
